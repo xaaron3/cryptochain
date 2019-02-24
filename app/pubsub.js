@@ -11,7 +11,7 @@ const CHANNELS = {
    TEST: 'TEST',
    BLOCKCHAIN: 'BLOCKCHAIN',
    TRANSACTION: 'TRANSACTION'
-}
+};
 
 class PubSub {
    constructor({ blockchain, transactionPool, wallet }) {
@@ -21,9 +21,23 @@ class PubSub {
 
       this.pubnub = new PubNub(credentials);
 
-      this.pubnub.subscribe({ channels: Object.values(CHANNELS) });
+      this.pubnub.subscribe({ channels: [Object.values(CHANNELS)] });
 
       this.pubnub.addListener(this.listener());
+   }
+
+   broadcastChain() {
+      this.publish({
+         channel: CHANNELS.BLOCKCHAIN,
+         message: JSON.stringify(this.blockchain.chain)
+      });
+   }
+
+   broadcastTransaction(transaction) {
+      this.publish({
+         channel: CHANNELS.TRANSACTION,
+         message: JSON.stringify(transaction)
+      });
    }
 
    subscribeToChannels() {
@@ -63,6 +77,7 @@ class PubSub {
    }
 
    publish({ channel, message }) {
+
       this.pubnub.publish({ message, channel });
    }
 
@@ -75,10 +90,10 @@ class PubSub {
 
    broadcastTransaction(transaction) {
       this.publish({
-         channel: CHANNELS.TRANSASCTION,
+         channel: CHANNELS.TRANSACTION,
          message: JSON.stringify(transaction)
-      })
-   };
+      });
+   }
 }
 
 module.exports = PubSub;
